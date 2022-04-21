@@ -239,7 +239,7 @@ if __name__ == '__main__':
 
     count_ngrams(corpus_file, order, vocab_file, ngram_file, memory)  # 用Kenlm统计ngram
     ngrams = KenlmNgrams(vocab_file, ngram_file, order, min_count)  # 加载ngram
-    ngrams = filter_ngrams(ngrams.ngrams, ngrams.total, [0, 5, 10, 15])  # 过滤ngram
+    ngrams = filter_ngrams(ngrams.ngrams, ngrams.total, [0, 2, 4, 6])  # 过滤ngram
     ngtrie = SimpleTrie()  # 构建ngram的Trie树
 
     for w in Progress(ngrams, 100000, desc=u'build ngram trie'):
