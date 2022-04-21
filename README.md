@@ -1,3 +1,5 @@
+fork自苏建林的新词发现repo：https://github.com/bojone/word-discovery
+
 # 速度更快、效果更好的中文新词发现
 
 复现了之前的<a href="https://kexue.fm/archives/4256">《【中文分词系列】 8. 更好的新词发现算法》</a>中的新词发现算法。
@@ -25,5 +27,4 @@ python word_discovery.py
 ## 更新
 - 2019.12.04: 兼容python3，在python2.7和python3.5下测试通过。
 
-## 交流
-QQ交流群：67729435，微信群请加机器人微信号spaces_ac_cn
+
