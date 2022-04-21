@@ -9,7 +9,6 @@ import logging
 import re
 import glob
 import argparse
-import pdb
 
 logging.basicConfig(level=logging.INFO, format=u'%(asctime)s - %(levelname)s - %(message)s')
 
@@ -198,7 +197,6 @@ def filter_vocab(candidates, ngrams, order):
 def text_generator(file_path='/root/corpus/*/*.txt'):
     txts = glob.glob(file_path)
     for txt in txts:
-        pdb.set_trace()
         d = codecs.open(txt, encoding='utf-8').read()
         d = d.replace(u'\u3000', ' ').strip()
         yield re.sub(u'[^\u4e00-\u9fa50-9a-zA-Z ]+', '\n', d)
