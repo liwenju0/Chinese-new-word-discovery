@@ -6,6 +6,9 @@ import six
 import codecs
 import math
 import logging
+import re
+import glob
+import argparse
 
 logging.basicConfig(level=logging.INFO, format=u'%(asctime)s - %(levelname)s - %(message)s')
 
@@ -201,9 +204,7 @@ def text_generator(file_path='/root/thuctc/THUCNews/*/*.txt'):
 
 # ======= 算法构建完毕，下面开始执行完整的构建词库流程 =======
 
-import re
-import glob
-import argparse
+
 
 if __name__ == '__main__':
     os.system("chmod +x count_ngrams")
