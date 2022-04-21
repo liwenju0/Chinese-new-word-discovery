@@ -9,6 +9,7 @@ import logging
 import re
 import glob
 import argparse
+import pdb
 
 logging.basicConfig(level=logging.INFO, format=u'%(asctime)s - %(levelname)s - %(message)s')
 
@@ -194,9 +195,10 @@ def filter_vocab(candidates, ngrams, order):
 
 # 语料生成器，并且初步预处理语料
 # 这个生成器例子的具体含义不重要，只需要知道它就是逐句地把文本yield出来就行了
-def text_generator(file_path='/root/thuctc/THUCNews/*/*.txt'):
+def text_generator(file_path='/root/corpus/*/*.txt'):
     txts = glob.glob(file_path)
     for txt in txts:
+        pdb.set_trace()
         d = codecs.open(txt, encoding='utf-8').read()
         d = d.replace(u'\u3000', ' ').strip()
         yield re.sub(u'[^\u4e00-\u9fa50-9a-zA-Z ]+', '\n', d)
@@ -209,7 +211,7 @@ def text_generator(file_path='/root/thuctc/THUCNews/*/*.txt'):
 if __name__ == '__main__':
     os.system("chmod +x count_ngrams")
     parser = argparse.ArgumentParser()
-    parser.add_argument('--file_path', type=str, required=True)
+    parser.add_argument('--file_path', type=str, default='/root/corpus/*/*.txt',  required=False)
     parser.add_argument('--min_count', type=int, default=32, required=False)
     parser.add_argument('--order', type=int, default=4, required=False)
     parser.add_argument('--corpus_file', type=str, default='corpus_file.corpus', required=False)
