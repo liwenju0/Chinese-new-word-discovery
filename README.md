@@ -24,7 +24,6 @@ chmod +x count_ngrams
 python word_discovery.py
 ```
 
-## 更新
-- 2019.12.04: 兼容python3，在python2.7和python3.5下测试通过。
-
+在word_discovery中执行chmod +x count_ngrams命令
+使word_discovery支持传入文件路径
 
