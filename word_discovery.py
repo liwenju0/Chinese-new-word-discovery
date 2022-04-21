@@ -118,6 +118,8 @@ def count_ngrams(corpus_file, order, vocab_file, ngram_file, memory=0.5):
 
 def filter_ngrams(ngrams, total, min_pmi=1):
     """通过互信息过滤ngrams，只保留“结实”的ngram。
+    pmi表示凝固度
+    min_pmi 的值类似 [0, 2, 4, 6] 表示不同长度的ngram的凝固度的阈值
     """
     order = len(ngrams)
     if hasattr(min_pmi, '__iter__'):
@@ -204,21 +206,22 @@ def text_generator(file_path='/root/corpus/*/*.txt'):
 
 # ======= 算法构建完毕，下面开始执行完整的构建词库流程 =======
 
-
-
 if __name__ == '__main__':
     os.system("chmod +x count_ngrams")
     parser = argparse.ArgumentParser()
-    parser.add_argument('--file_path', type=str, default='/root/corpus/*/*.txt',  required=False)
+    parser.add_argument('--file_path', type=str, default='/root/corpus/*/*.txt', required=False)
     parser.add_argument('--min_count', type=int, default=32, required=False)
+    parser.add_argument('--load_texts_in_memory', type=bool, default=False, required=False)
+
     parser.add_argument('--order', type=int, default=4, required=False)
     parser.add_argument('--corpus_file', type=str, default='corpus_file.corpus', required=False)
     parser.add_argument('--vocab_file', type=str, default='vocab_file.chars', required=False)
     parser.add_argument('--ngram_file', type=str, default='ngram_file.ngrams', required=False)
     parser.add_argument('--output_file', type=str, default='output_file.vocab', required=False)
-    parser.add_argument('--memory', type=float, default=0.5, required=False)
+    parser.add_argument('--memory', type=float, default=0.8, required=False)
 
     args = parser.parse_args()
+    load_texts_in_memory = args.load_texts_in_memory
     file_path = args.file_path
     min_count = args.min_count
     order = args.order
@@ -227,28 +230,38 @@ if __name__ == '__main__':
     ngram_file = args.ngram_file  # ngram集保存的文件名
     output_file = args.output_file  # 最后导出的词表文件名
     memory = args.memory  # memory是占用内存比例，理论上不能超过可用内存比例
+    if load_texts_in_memory:
+        texts = list(text_generator(file_path=file_path))
+    else:
+        texts = text_generator(file_path=file_path)
 
-    write_corpus(text_generator(file_path=file_path), corpus_file)  # 将语料转存为文本
+    write_corpus(texts, corpus_file)  # 将语料转存为文本
+
     count_ngrams(corpus_file, order, vocab_file, ngram_file, memory)  # 用Kenlm统计ngram
     ngrams = KenlmNgrams(vocab_file, ngram_file, order, min_count)  # 加载ngram
-    ngrams = filter_ngrams(ngrams.ngrams, ngrams.total, [0, 2, 4, 6])  # 过滤ngram
+    ngrams = filter_ngrams(ngrams.ngrams, ngrams.total, [0, 5, 10, 15])  # 过滤ngram
     ngtrie = SimpleTrie()  # 构建ngram的Trie树
 
     for w in Progress(ngrams, 100000, desc=u'build ngram trie'):
         _ = ngtrie.add_word(w)
 
     candidates = {}  # 得到候选词
-    for t in Progress(text_generator(), 1000, desc='discovering words'):
+    for t in Progress(texts, 1000, desc='discovering words'):
         for w in ngtrie.tokenize(t):  # 预分词
             candidates[w] = candidates.get(w, 0) + 1
 
+    print("完成预分词")
     # 频数过滤
     candidates = {i: j for i, j in candidates.items() if j >= min_count}
+    print("完成频数过滤")
     # 互信息过滤(回溯)
     candidates = filter_vocab(candidates, ngrams, order)
+    print("完成互信息过滤，开始写入最终结果文件")
 
     # 输出结果文件
     with codecs.open(output_file, 'w', encoding='utf-8') as f:
         for i, j in sorted(candidates.items(), key=lambda s: -s[1]):
             s = '%s %s\n' % (i, j)
             f.write(s)
+
+    print("成功！")
